@@ -1,4 +1,8 @@
 {{game}}
-{{game.range_max}}
-{{game.guess_number}}
 user is guessing...
+{{clue}}
+<form method="POST">
+    {% csrf_token %}
+    <input type="number" name="user_number">
+    <input type="submit" value="Let's try with this" />
+</form>

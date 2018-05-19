@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from .models import Game
 from random import randint
 
 
@@ -11,8 +12,8 @@ def welcome(request):
 
 def user_starts(request):
     new_game = Game()
-    new_game.status = Game.GAME_STATUS_CHOICES['START']
-    new_game.guesser = Game.GUESSER_CHOICES['USER']
+    new_game.status = Game.GAME_STATUS_CHOICE_START
+    new_game.guesser = Game.GUESSER_CHOICE_USER
     new_game.save()
     new_game.guess_number = randint(new_game.range_min, new_game.range_max)
     new_game.save()
@@ -23,18 +24,17 @@ def user_starts(request):
 
 def user_guesses(request, game_id):
     game = get_object_or_404(Game, pk=game_id)
-    if game.status == Game.GAME_STATUS_CHOICES['START']:
+    if game.status == Game.GAME_STATUS_CHOICE_START:
         """ USER must start to guess"""
-        game.status = Game.GAME_STATUS_CHOICES['USER_GUESSING']
+        game.status = Game.GAME_STATUS_CHOICE_USER_GUESSING
         game.save()
         clue = 'You have just started'
-    elif game.status == Game.GAME_STATUS_CHOICES['USER_GUESSING']:
+    elif game.status == Game.GAME_STATUS_CHOICE_USER_GUESSING:
         """ USER has started to guess.
         We must compare his number with the number to be guessed"""
-        try_number = request.POST['user_number']
-        # try_number = 0
+        try_number = int(request.POST['user_number'])
         if try_number == game.guess_number:
-            game.status = Game.GAME_STATUS_CHOICES['FINISHED']
+            game.status = Game.GAME_STATUS_CHOICE_FINISHED
             game.save()
             clue = 'You won'
         elif try_number < game.guess_number:

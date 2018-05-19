@@ -1,8 +1,8 @@
-{{game}}
-user is trying to guess {{game.guess_number}}
+User is trying to guess {{game.guess_number}}
 {{clue}}
 <form method="POST" action="{% url 'user_guesses' game.id %}">
     {% csrf_token %}
     <input type="number" name="user_number">
     <input type="submit" value="Let's try with this" />
 </form>
+<a href="{% url 'index' %}">I regret. Take me home</a>

@@ -10,5 +10,8 @@ urlpatterns = [
    path('machine_starts/', views.machine_starts, name='machine_starts'),
    path('games/<int:game_id>/user_guesses/',
         views.user_guesses,
-        name='user_guesses')
+        name='user_guesses'),
+   path('games/<int:game_id>/machine_guesses/',
+        views.machine_guesses,
+        name='machine_guesses')
 ]

@@ -1,0 +1,16 @@
+<h1>I'm guessing...</h1>
+{{clue}}
+<form method="POST" action="{% url 'machine_guesses' game.id %}">
+    {% csrf_token %} 
+    <input type="hidden" name='minimal_value' value='{{minimal_value}}'/>
+    <input type="hidden" name='maximal_value' value='{{maximal_value}}'/>
+    <input type="hidden" name='last_attempt' value='{{last_attempt}}'/>
+    <input type="radio" name='comparison' value='SMALLER' id='comparison_smaller' checked/>
+    <label for="comparison_smaller">Smaller</label>
+    <input type="radio" name='comparison' value='BIGGER' id='comparison_bigger'/>
+    <label for="comparison_bigger">Bigger</label>
+    <input type="radio" name='comparison' value='EQUAL' id='comparison_equal'/>
+    <label for="comparison_equal">That's it!</label>
+    <input type="submit" value="NEXT" />
+</form>
+<a href="{% url 'index' %}">Nevermind. Take me home</a>

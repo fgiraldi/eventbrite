@@ -5,4 +5,4 @@ User is trying to guess {{game.guess_number}}
     <input type="number" name="user_number">
     <input type="submit" value="Let's try with this" />
 </form>
-<a href="{% url 'index' %}">I regret. Take me home</a>
+<a href="{% url 'cancel_game' game.id %}">I regret. Take me home</a>

@@ -11,6 +11,7 @@ class Game(models.Model):
     GAME_STATUS_CHOICE_USER_GUESSING = 'USER_GUESSING'
     GAME_STATUS_CHOICE_MACHINE_GUESSING = 'MACHINE_GUESSING'
     GAME_STATUS_CHOICE_FINISHED = 'FINISHED'
+    GAME_STATUS_CHOICE_CANCELED = 'CANCELED'
 
     GAME_DEFAULT_RANGE_MIN = 1
     GAME_DEFAULT_RANGE_MAX = 100
@@ -35,17 +36,21 @@ class Game(models.Model):
         self.guesser = guesser
         self.range_min = Game.GAME_DEFAULT_RANGE_MIN
         self.range_max = Game.GAME_DEFAULT_RANGE_MAX
+        self.save()
+
+    def set_guess_number(self):
+        """Chooses a random number to be guessed by the user."""
         self.guess_number = randint(self.range_min, self.range_max)
         self.save()
-        return self
 
     def has_just_started(self):
         return self.status == Game.GAME_STATUS_CHOICE_START
 
     def user_guesses(self):
+        """Sets the USER as the guesser."""
         self.status = Game.GAME_STATUS_CHOICE_USER_GUESSING
+        self.set_guess_number()
         self.save()
-        return self
 
     def compare_number(self, user_number):
         """Informs how the guess_number compares to
@@ -63,12 +68,12 @@ class Game(models.Model):
                 'SMALLER')
 
     def machine_guesses(self):
+        """Sets the MACHINE as the guesser."""
         self.status = Game.GAME_STATUS_CHOICE_MACHINE_GUESSING
         self.save()
-        return self
 
     def get_magical_number(self, min, max):
-        """Performs the binary search between min and max"""
+        """Performs the binary search between min and max."""
         return (min + max) // 2
 
     def guess_user_number(self, min, max, last=0, comparison=''):
@@ -76,27 +81,35 @@ class Game(models.Model):
         Args:
             min, max (int): parameters for shrinking the scope of values
             last (int): last attempted number
-            comparison (str): 'BIGGER', 'SMALLER' according to user input
+            comparison (str): 'BIGGER', 'SMALLER' according to user input.
         """
         if self.has_just_started():
             return_min = min
             return_max = max
         elif comparison == 'BIGGER':
-            return_min = last
+            return_min = last + 1
             return_max = max
         else:
             return_min = min
-            return_max = last
+            return_max = last - 1
         return_last = self.get_magical_number(return_min, return_max)
         return return_min, return_max, return_last
 
     def finish(self):
-        """Ends the game, establishing the FINISHED status
-        and returning the instance
-        """
+        """Ends the game, establishing the FINISHED status."""
         self.status = Game.GAME_STATUS_CHOICE_FINISHED
         self.save()
-        return self
 
     def is_finished(self):
         return (self.status == Game.GAME_STATUS_CHOICE_FINISHED)
+
+    def in_progress(self):
+        in_progress_status = [Game.GAME_STATUS_CHOICE_MACHINE_GUESSING,
+                              Game.GAME_STATUS_CHOICE_USER_GUESSING,
+                              Game.GAME_STATUS_CHOICE_START]
+        return self.status in in_progress_status
+
+    def cancel(self):
+        """Cancels a game due to user decition."""
+        self.status = Game.GAME_STATUS_CHOICE_CANCELED
+        self.save()

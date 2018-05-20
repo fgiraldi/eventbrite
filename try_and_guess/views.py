@@ -1,30 +1,35 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from .models import Game
 
 
 def welcome(request):
+    """Initial welcome view."""
     context = {}
     return render(request, 'try_and_guess/welcome.html', context)
 
 
 def user_starts(request):
+    """User chooses to be the guesser."""
     new_game = Game()
     new_game.initialize(Game.GUESSER_CHOICE_USER)
-    # context = {'game': new_game}
     return user_guesses(request, new_game.id)
 
 
 def user_guesses(request, game_id):
+    """User tries to guess the number,
+    receiving clues from the machine.
+    """
     game = get_object_or_404(Game, pk=game_id)
     if game.has_just_started():
-        """USER must start to guess"""
+        """USER must start to guess."""
         game.user_guesses()
         clue = 'You have just started'
     elif game.status == Game.GAME_STATUS_CHOICE_USER_GUESSING:
         """USER has started to guess.
-        We must compare his number with the number to be guessed
+        We must compare his number with the number to be guessed.
         """
         try:
             user_number = int(request.POST['user_number'])
@@ -40,7 +45,7 @@ def user_guesses(request, game_id):
             else:
                 clue = 'My number is smaller'
     else:
-        clue = 'Estoy en cualquier estado %s' % game.status
+        raise PermissionDenied
 
     context = {'game': game, 'clue': clue}
     if game.is_finished():
@@ -50,25 +55,30 @@ def user_guesses(request, game_id):
 
 
 def machine_starts(request):
+    """User chooses that the machine will be the guesser"""
     new_game = Game()
-    new_game.initialize(Game.GUESSER_CHOICE_MACHINE)    
+    new_game.initialize(Game.GUESSER_CHOICE_MACHINE)
     context = {'game': new_game}
     return render(request, 'try_and_guess/machine_starts.html', context)
 
 
 def machine_guesses(request, game_id):
+    """Machine must obtain a number in order to guess
+    the secretly chosen one by the user.
+    """
     game = get_object_or_404(Game, pk=game_id)
     if game.has_just_started():
-        """MACHINE must start to guess"""
+        """MACHINE must start to guess."""
         my_min, my_max, my_number = game.guess_user_number(
             min=int(request.POST['minimal_value']),
             max=int(request.POST['maximal_value'])
         )
         game.machine_guesses()
-        clue = 'Is it your number %s?' % my_number
+        clue = 'First. Is it your number %s?' % my_number
     elif game.status == Game.GAME_STATUS_CHOICE_MACHINE_GUESSING:
         """MACHINE has started to guess."""
         if request.POST['comparison'] == 'EQUAL':
+            game.finish()
             context = {}
             return render(request, 'try_and_guess/machine_win.html', context)
         else:
@@ -80,7 +90,7 @@ def machine_guesses(request, game_id):
             )
             clue = 'Is it your number %s?' % my_number
     else:
-        clue = 'Estoy en cualquier estado %s' % game.status
+        raise PermissionDenied
 
     context = {'game': game,
                'clue': clue,
@@ -89,3 +99,13 @@ def machine_guesses(request, game_id):
                'last_attempt': my_number
                }
     return render(request, 'try_and_guess/machine_guesses.html', context)
+
+
+def cancel_game(request, game_id):
+    """User decides to abandon the game."""
+    game = get_object_or_404(Game, pk=game_id)
+    if game.in_progress():
+        game.cancel()
+    else:
+        raise PermissionDenied
+    return welcome(request)

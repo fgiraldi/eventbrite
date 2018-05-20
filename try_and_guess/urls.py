@@ -13,5 +13,9 @@ urlpatterns = [
         name='user_guesses'),
    path('games/<int:game_id>/machine_guesses/',
         views.machine_guesses,
-        name='machine_guesses')
+        name='machine_guesses'),
+   path('games/<int:game_id>/cancel_game/',
+        views.cancel_game,
+        name='cancel_game')
+
 ]

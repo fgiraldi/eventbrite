@@ -34,7 +34,7 @@ def user_guesses(request, game_id):
         try:
             user_number = int(request.POST['user_number'])
         except ValueError as ve:
-            clue = 'You must enter a unmber in order to try to guess'
+            clue = 'You must enter a number in order to try to guess'
         else:
             comparison = game.compare_number(user_number)
             if comparison == 'EQUAL':

@@ -1,3 +1,16 @@
-You won!
-Congrats!
-<a href="{% url 'index' %}">Go to home</a>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<div class="container">
+    <div class="content user_win">
+        <h1>Try&Guess</h1>
+        <p>
+            You won!
+            <br>
+            Congrats!
+        </p>
+        <div class="options">
+            <a href="{% url 'index' %}">Go to home</a>
+        </div>
+    </div>
+</div>
+

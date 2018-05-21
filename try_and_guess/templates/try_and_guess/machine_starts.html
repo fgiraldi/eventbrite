@@ -1,9 +1,18 @@
-You think a number. I close my eyes...
-Click NEXT when ready
-<form method="POST" action="{% url 'machine_guesses' game.id %}">
-    {% csrf_token %}
-    <input type="hidden" name='minimal_value' value='{{game.range_min}}'/>
-    <input type="hidden" name='maximal_value' value='{{game.range_max}}'/>
-    <input type="submit" value="NEXT" />
-</form>
-<a href="{% url 'cancel_game' game.id %}">I regret. Take me home</a>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<div class="container">
+    <div class="content eyes_closed">
+        <h1>Try&Guess</h1>
+        <p>You think a number. I close my eyes...</p>
+        <p>Click NEXT when ready</p>
+        <form method="POST" action="{% url 'machine_guesses' game.id %}">
+            {% csrf_token %}
+            <input type="hidden" name='minimal_value' value='{{game.range_min}}'/>
+            <input type="hidden" name='maximal_value' value='{{game.range_max}}'/>
+            <input type="submit" value="NEXT" />
+        </form>
+        <div class="options">
+            <a href="{% url 'cancel_game' game.id %}">I regret. Take me home</a>
+        </div>
+    </div>
+</div>

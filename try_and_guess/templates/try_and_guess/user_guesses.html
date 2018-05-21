@@ -1,8 +1,21 @@
-User is trying to guess {{game.guess_number}}
-{{clue}}
-<form method="POST" action="{% url 'user_guesses' game.id %}">
-    {% csrf_token %}
-    <input type="number" name="user_number">
-    <input type="submit" value="Let's try with this" />
-</form>
-<a href="{% url 'cancel_game' game.id %}">I regret. Take me home</a>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<div class="container">
+    <div class="content user_guessing">
+        <h1>Try&Guess</h1>
+        <p>
+            User is trying to guess...
+            <br>
+            {{clue}}
+        </p>
+        <form method="POST" action="{% url 'user_guesses' game.id %}">
+                {% csrf_token %}
+                <input type="number" name="user_number">
+                <input type="submit" value="Let's try with this" />
+        </form>
+        <div class="options">
+            <a href="{% url 'cancel_game' game.id %}">I regret. Take me home</a>
+        </div>
+    </div>
+</div>
+

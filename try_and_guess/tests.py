@@ -10,7 +10,6 @@ class GameModelTests(TestCase):
         """Verifies correct game status (START)
         right after initialization
         """
-
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_USER)
         self.assertIs(game.status, Game.GAME_STATUS_CHOICE_START,
@@ -20,7 +19,6 @@ class GameModelTests(TestCase):
         """After initialization, has_just_started()
         must return True
         """
-
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_USER)
         self.assertTrue(game.has_just_started(),
@@ -46,10 +44,10 @@ class GameModelTests(TestCase):
         self.assertIs(game.status, Game.GAME_STATUS_CHOICE_MACHINE_GUESSING,
                       'The machine should be guessing')
 
-    def test_in_progress(self):
+    def test_in_progress_when_user_guesses(self):
         """Verify in_progress() correct behaviour
-        for both cases for the guesser choice
-        and for both after-status (FINISHED and CANCEL)
+        for both after-status (FINISHED and CANCEL)
+        when the user is the guesser
         """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_USER)
@@ -58,26 +56,23 @@ class GameModelTests(TestCase):
         self.assertIs(game.in_progress(), True)
         game.finish()
         self.assertIs(game.in_progress(), False)
-        game = Game()
-        game.initialize(Game.GUESSER_CHOICE_MACHINE)
-        self.assertIs(game.in_progress(), True)
-        game.machine_guesses()
-        self.assertIs(game.in_progress(), True)
+        game.initialize(Game.GUESSER_CHOICE_USER)
         game.cancel()
         self.assertIs(game.in_progress(), False)
 
-        game = Game()
-        game.initialize(Game.GUESSER_CHOICE_USER)
-        self.assertIs(game.in_progress(), True)
-        game.user_guesses()
-        self.assertIs(game.in_progress(), True)
-        game.cancel()
-        self.assertIs(game.in_progress(), False)
+    def test_in_progress_when_machine_guesses(self):
+        """Verify in_progress() correct behaviour
+        for both after-status (FINISHED and CANCEL)
+        when the machine is the guesser
+        """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_MACHINE)
         self.assertIs(game.in_progress(), True)
         game.machine_guesses()
         self.assertIs(game.in_progress(), True)
+        game.finish()
+        self.assertIs(game.in_progress(), False)
+        game.initialize(Game.GUESSER_CHOICE_MACHINE)
         game.cancel()
         self.assertIs(game.in_progress(), False)
 
@@ -95,24 +90,29 @@ class GameModelTests(TestCase):
         self.assertIs(game.compare_number(must_return_smaller), 'SMALLER')
         self.assertIs(game.compare_number(must_return_equal), 'EQUAL')
 
-    def test_finish(self):
+    def test_finish_when_user_guesses(self):
         """Confirm correct status after game is finished
-        for both cases for the guesser choice.
+        when the user is the guesser.
         """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_USER)
         game.user_guesses()
         game.finish()
         self.assertIs(game.status, Game.GAME_STATUS_CHOICE_FINISHED)
+
+    def test_finish_when_machine_guesses(self):
+        """Confirm correct status after game is finished
+        when the user is the guesser.
+        """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_MACHINE)
         game.machine_guesses()
         game.finish()
         self.assertIs(game.status, Game.GAME_STATUS_CHOICE_FINISHED)
 
-    def test_is_finished(self):
+    def test_is_finished_when_user_guesses(self):
         """Verify is_finished() correct behaviour
-        for both cases for the guesser choice.
+        when the user is the guesser.
         """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_USER)
@@ -120,6 +120,11 @@ class GameModelTests(TestCase):
         self.assertIs(game.is_finished(), False)
         game.finish()
         self.assertIs(game.is_finished(), True)
+
+    def test_is_finished_when_machine_guesses(self):
+        """Verify is_finished() correct behaviour
+        when the machine is the guesser.
+        """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_MACHINE)
         game.machine_guesses()
@@ -127,10 +132,10 @@ class GameModelTests(TestCase):
         game.finish()
         self.assertIs(game.is_finished(), True)
 
-    def test_cancel(self):
+    def test_cancel_when_user_guesses(self):
         """Verify cancel() correct behaviour
-        for both cases for the guesser choice
-        and for the three status (START, USER_GUESSING and MACHINE_GUESSING)
+        when the user is the guesser
+        for the three status (START, USER_GUESSING and MACHINE_GUESSING)
         """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_USER)
@@ -142,6 +147,11 @@ class GameModelTests(TestCase):
         game.cancel()
         self.assertIs(game.status, Game.GAME_STATUS_CHOICE_CANCELED)
 
+    def test_cancel_when_machine_guesses(self):
+        """Verify cancel() correct behaviour
+        when the machine is the guesser
+        for the three status (START, USER_GUESSING and MACHINE_GUESSING)
+        """
         game = Game()
         game.initialize(Game.GUESSER_CHOICE_MACHINE)
         game.cancel()
@@ -197,7 +207,7 @@ class GameModelTests(TestCase):
 
 def simulate_user_response(user_number, machine_number):
     """Simulates the answer provided by the user
-    in order to provide feedback to the next test,
+    in order to provide feedback to test_effectiveness_at_guessing(),
     so I can asure the algorithm can guess any number.
 
     Args:
